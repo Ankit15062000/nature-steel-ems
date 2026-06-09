@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nature Steel Furniture — Employee Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f4f0;
+      --surface: #ffffff;
+      --surface2: #f1efea;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.22);
+      --text: #1a1a18;
+      --text2: #666660;
+      --text3: #999994;
+      --blue: #185FA5;
+      --blue-dark: #0C447C;
+      --blue-light: #E6F1FB;
+      --blue-text: #0C447C;
+      --green-bg: #EAF3DE;
+      --green-text: #3B6D11;
+      --amber-bg: #FAEEDA;
+      --amber-text: #854F0B;
+      --red-bg: #FCEBEB;
+      --red-text: #A32D2D;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a18;
+        --surface: #242422;
+        --surface2: #2e2e2b;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.2);
+        --text: #f0ede6;
+        --text2: #aaa89f;
+        --text3: #666660;
+        --blue: #378ADD;
+        --blue-dark: #85B7EB;
+        --blue-light: #042C53;
+        --blue-text: #85B7EB;
+        --green-bg: #173404;
+        --green-text: #C0DD97;
+        --amber-bg: #412402;
+        --amber-text: #FAC775;
+        --red-bg: #501313;
+        --red-text: #F7C1C1;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    input, select, textarea, button {
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    input[type=text], input[type=password], input[type=number], input[type=date], select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(24,95,165,0.15); }
+
+    /* ─── LOGIN ─── */
+    .login-wrap {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 2rem;
+    }
+    .login-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      width: 100%; max-width: 380px;
+    }
+    .brand { text-align: center; margin-bottom: 1.5rem; }
+    .brand-icon {
+      width: 52px; height: 52px;
+      background: var(--blue-dark);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.75rem;
+      color: var(--blue-light); font-size: 24px;
+    }
+    .brand h1 { font-size: 18px; font-weight: 600; }
+    .brand p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+    .btn-primary {
+      width: 100%; padding: 10px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--blue-dark); }
+    .login-err { font-size: 12px; color: var(--red-text); margin-top: 8px; text-align: center; }
+
+    /* ─── MAIN LAYOUT ─── */
+    .main-wrap { display: none; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 54px; position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-logo {
+      width: 34px; height: 34px;
+      background: var(--blue-dark);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue-light); font-size: 16px;
+    }
+    .topbar h2 { font-size: 15px; font-weight: 500; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .user-chip {
+      font-size: 12px; color: var(--text2);
+      background: var(--surface2);
+      padding: 4px 10px; border-radius: 20px;
+    }
+    .logout-btn {
+      font-size: 12px; color: var(--text2); cursor: pointer;
+      border: 0.5px solid var(--border); padding: 6px 12px;
+      border-radius: var(--radius); background: none;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .logout-btn:hover { background: var(--surface2); }
+
+    /* ─── TABS ─── */
+    .tabs {
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      display: flex; padding: 0 1.25rem; gap: 4px;
+    }
+    .tab {
+      padding: 11px 14px; font-size: 13px;
+      color: var(--text2); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: flex; align-items: center; gap: 6px;
+      transition: color 0.15s;
+    }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 500; }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    /* ─── CONTENT ─── */
+    .content { padding: 1.25rem; flex: 1; }
+
+    /* ─── STATS ─── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px; margin-bottom: 1.25rem;
+    }
+    .stat-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 0.875rem 1rem;
+    }
+    .stat-card .slabel { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+    .stat-card .sval { font-size: 22px; font-weight: 600; color: var(--text); }
+    .stat-card.blue .sval { color: var(--blue); }
+    .stat-card.green .sval { color: var(--green-text); }
+    .stat-card.amber .sval { color: var(--amber-text); }
+    .stat-card.red .sval { color: var(--red-text); }
+
+    /* ─── TOOLBAR ─── */
+    .toolbar {
+      display: flex; gap: 8px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap; align-items: center;
+    }
+    .toolbar input[type=text] { flex: 1; min-width: 180px; }
+    .btn-add {
+      padding: 8px 14px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-add:hover { background: var(--blue-dark); }
+    .btn-outline {
+      padding: 8px 14px; background: none;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      font-size: 13px; color: var(--text); cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-outline:hover { background: var(--surface2); }
+
+    /* ─── TABLE ─── */
+    .table-wrap {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+    th {
+      padding: 9px 12px; text-align: left;
+      font-size: 11px; font-weight: 500;
+      color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--surface2);
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 0.5px solid var(--border);
+      color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    /* ─── BADGES ─── */
+    .emp-id { font-family: monospace; font-size: 12px; color: var(--blue); font-weight: 600; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+    .badge-active { background: var(--green-bg); color: var(--green-text); }
+    .badge-hold { background: var(--amber-bg); color: var(--amber-text); }
+    .badge-resigned { background: var(--red-bg); color: var(--red-text); }
+    .desg-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; background: var(--blue-light); color: var(--blue-text); }
+
+    /* ─── ACTION BUTTONS ─── */
+    .action-btns { display: flex; gap: 4px; }
+    .act-btn {
+      border: none; background: none;
+      padding: 4px 6px; cursor: pointer;
+      border-radius: 4px; font-size: 14px;
+      color: var(--text2);
+    }
+    .act-btn:hover { background: var(--surface2); color: var(--text); }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px; z-index: 200;
+      overflow-y: auto;
+    }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border);
+      width: 100%; max-width: 520px;
+    }
+    .modal-head {
+      padding: 1rem 1.25rem;
+      border-bottom: 0.5px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-head h3 { font-size: 15px; font-weight: 500; }
+    .modal-close {
+      border: none; background: none; cursor: pointer;
+      font-size: 20px; color: var(--text2); padding: 2px 6px;
+      line-height: 1;
+    }
+    .modal-body { padding: 1.25rem; }
+    .modal-foot {
+      padding: 1rem 1.25rem;
+      border-top: 0.5px solid var(--border);
+      display: flex; gap: 8px; justify-content: flex-end;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-row.full { grid-template-columns: 1fr; }
+    .form-field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+    .btn-cancel {
+      padding: 7px 14px; background: none;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius); font-size: 13px;
+      cursor: pointer; color: var(--text);
+    }
+    .btn-save {
+      padding: 7px 16px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: var(--radius);
+      font-size: 13px; cursor: pointer; font-weight: 500;
+    }
+    .btn-save:hover { background: var(--blue-dark); }
+
+    /* ─── HISTORY ─── */
+    .history-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 10px; overflow: hidden;
+    }
+    .history-head {
+      padding: 0.875rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none;
+    }
+    .history-head:hover { background: var(--surface2); }
+    .history-body { padding: 0 1.25rem 1rem; border-top: 0.5px solid var(--border); }
+
+    /* ─── TIMELINE ─── */
+    .timeline { padding-top: 1rem; }
+    .tl-item { display: flex; gap: 12px; margin-bottom: 1rem; }
+    .tl-dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .tl-dot.joining { background: #3B6D11; }
+    .tl-dot.hold { background: #854F0B; }
+    .tl-dot.resigned { background: #A32D2D; }
+    .tl-dot.resume { background: #185FA5; }
+    .tl-title { font-size: 13px; font-weight: 500; }
+    .tl-date { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .tl-note { font-size: 12px; color: var(--text2); margin-top: 2px; font-style: italic; }
+
+    /* ─── DETAIL ─── */
+    .emp-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 16px; color: var(--blue-text);
+      flex-shrink: 0;
+    }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; margin-bottom: 1rem; }
+    .detail-item label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .detail-item span { font-weight: 500; }
+    .event-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 0.5px solid var(--border); }
+    .ev-btn { padding: 7px 12px; font-size: 12px; border-radius: var(--radius); border: 0.5px solid; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+    .ev-btn.hold { background: var(--amber-bg); color: var(--amber-text); border-color: #EF9F27; }
+    .ev-btn.resume { background: var(--green-bg); color: var(--green-text); border-color: #97C459; }
+    .ev-btn.resign { background: var(--red-bg); color: var(--red-text); border-color: #F09595; }
+
+    /* ─── IMPORT ─── */
+    .import-card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem; max-width: 580px;
+    }
+    .import-zone {
+      border: 1.5px dashed var(--border2);
+      border-radius: var(--radius-lg);
+      padding: 2rem; text-align: center;
+      background: var(--surface2); cursor: pointer;
+    }
+    .import-zone p { font-size: 13px; color: var(--text2); margin-top: 8px; }
+    .import-zone input { display: none; }
+    .imp-row {
+      display: flex; gap: 8px; padding: 6px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 12px; align-items: center;
+    }
+    .imp-row:last-child { border: none; }
+
+    /* ─── MISC ─── */
+    .id-chip {
+      background: var(--blue-light); color: var(--blue-text);
+      border-radius: var(--radius); padding: 8px 12px;
+      font-size: 13px; margin-bottom: 1rem;
+    }
+    .empty { text-align: center; padding: 3rem; color: var(--text2); font-size: 13px; }
+    .success-msg { color: var(--green-text); font-size: 13px; padding: 1rem 0; display: flex; align-items: center; gap: 6px; }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .topbar h2 { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-icon"><i class="ti ti-building-factory-2"></i></div>
+      <h1>Nature Steel Furniture</h1>
+      <p>Employee Management System</p>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Login</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="main-wrap" id="main-screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo"><i class="ti ti-building-factory-2"></i></div>
+      <h2>Nature Steel — Employee Records</h2>
+    </div>
+    <div class="topbar-right">
+      <span class="user-chip" id="logged-user"></span>
+      <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout"></i> Logout</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-emp" onclick="switchTab('emp')"><i class="ti ti-users"></i> Employees</div>
+    <div class="tab" id="tab-hist" onclick="switchTab('hist')"><i class="ti ti-history"></i> History</div>
+    <div class="tab" id="tab-import" onclick="switchTab('import')"><i class="ti ti-file-upload"></i> Import CSV</div>
+  </div>
+
+  <!-- EMPLOYEES TAB -->
+  <div class="content" id="tab-content-emp">
+    <div class="stats-row" id="stats-row"></div>
+    <div class="toolbar">
+      <input type="text" id="search-inp" placeholder="Search by name, ID, designation, mobile..." oninput="renderTable()"/>
+      <select id="filter-status" onchange="renderTable()" style="width:auto">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="hold">On Hold</option>
+        <option value="resigned">Resigned</option>
+      </select>
+      <button class="btn-outline" onclick="switchTab('import')"><i class="ti ti-upload"></i> Import</button>
+      <button class="btn-add" onclick="openAddModal()"><i class="ti ti-plus"></i> Add Employee</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:88px">Emp ID</th>
+            <th style="width:130px">Name</th>
+            <th style="width:115px">Designation</th>
+            <th style="width:100px">Mobile</th>
+            <th style="width:100px">Joining Date</th>
+            <th style="width:80px">Salary</th>
+            <th style="width:75px">Status</th>
+            <th style="width:70px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="emp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="content" id="tab-content-hist" style="display:none">
+    <div id="history-list"></div>
+  </div>
+
+  <!-- IMPORT TAB -->
+  <div class="content" id="tab-content-import" style="display:none">
+    <div class="import-card">
+      <h3 style="font-size:15px;font-weight:500;margin-bottom:4px">Import Employees from CSV</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:1rem">
+        CSV column order: <strong>SN, Name, Designation, Date of Joining, Salary, Mobile, Aadhar, Date of Birth</strong>
+      </p>
+      <div class="import-zone" onclick="document.getElementById('csv-file').click()">
+        <i class="ti ti-file-spreadsheet" style="font-size:36px;color:var(--text3)"></i>
+        <p>Click to select CSV file</p>
+        <p style="font-size:11px;margin-top:4px">Excel se CSV export karke upload karo (.csv format)</p>
+        <input type="file" id="csv-file" accept=".csv" onchange="handleCSV(event)"/>
+      </div>
+      <div id="import-preview"></div>
+      <div id="import-actions" style="display:none;margin-top:1rem">
+        <button class="btn-save" onclick="confirmImport()"><i class="ti ti-check"></i> Import All Employees</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTAINER -->
+<div id="modal-container"></div>
+
+<script>
+  // ─── CONFIG ───
+  const CREDS = [
+    { u: 'admin', p: 'nsf@2024' },
+    { u: 'ankit', p: 'nature123' }
+  ];
+
+  const DESIGNATIONS = [
+    'Welder','Fabricator','Painter','Helper','Supervisor',
+    'Store Keeper','Accountant','Driver','Loader',
+    'Carpenter','Electrician','Manager','Other'
+  ];
+
+  // ─── STATE ───
+  let employees = [];
+  let importBuffer = [];
+
+  // ─── STORAGE ───
+  function saveData() {
+    try { localStorage.setItem('nsf_employees', JSON.stringify(employees)); } catch(e) {}
+  }
+  function loadData() {
+    try {
+      const d = localStorage.getItem('nsf_employees');
+      if (d) { employees = JSON.parse(d); return; }
+    } catch(e) {}
+    // Default sample data
+    employees = [
+      { id:'N00001', name:'Rajesh Kumar', designation:'Welder', mobile:'9876543210', joining:'2021-03-15', salary:'18000', aadhar:'1234-5678-9012', dob:'1990-05-20', status:'active', events:[{type:'joining',date:'2021-03-15',note:'Joined as welder'}] },
+      { id:'N00002', name:'Suresh Singh', designation:'Painter', mobile:'9812345678', joining:'2020-07-01', salary:'15000', aadhar:'2345-6789-0123', dob:'1988-11-10', status:'resigned', events:[{type:'joining',date:'2020-07-01',note:''},{type:'resigned',date:'2023-04-30',note:'Personal reasons'}] },
+      { id:'N00003', name:'Ramesh Yadav', designation:'Supervisor', mobile:'9701234567', joining:'2022-01-10', salary:'20000', aadhar:'3456-7890-1234', dob:'1995-02-28', status:'hold', events:[{type:'joining',date:'2022-01-10',note:''},{type:'hold',date:'2024-11-01',note:'Investigation pending'}] },
+      { id:'N00004', name:'Priya Sharma', designation:'Accountant', mobile:'9654321098', joining:'2023-06-01', salary:'16000', aadhar:'4567-8901-2345', dob:'1997-08-15', status:'active', events:[{type:'joining',date:'2023-06-01',note:''}] },
+    ];
+    saveData();
+  }
+
+  // ─── HELPERS ───
+  function genId() {
+    let max = 0;
+    employees.forEach(e => { let n = parseInt(e.id.replace('N','')); if (n > max) max = n; });
+    return 'N' + String(max + 1).padStart(5, '0');
+  }
+  function fmtDate(d) {
+    if (!d) return '—';
+    const p = d.split('-');
+    return p.length === 3 ? p[2]+'/'+p[1]+'/'+p[0] : d;
+  }
+  function statusLabel(s) { return {active:'Active',hold:'Hold',resigned:'Resigned'}[s] || s; }
+  function evLabel(t) { return {joining:'Joining',hold:'Hold / Suspension',resume:'Resume / Active',resigned:'Resignation'}[t] || t; }
+  function initials(name) { return name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
+  function desgOpts(sel='') {
+    return '<option value="">— Select —</option>' + DESIGNATIONS.map(d=>`<option value="${d}"${d===sel?' selected':''}>${d}</option>`).join('');
+  }
+
+  // ─── AUTH ───
+  function doLogin() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value;
+    if (CREDS.find(c => c.u===u && c.p===p)) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('main-screen').style.display = 'flex';
+      document.getElementById('logged-user').textContent = u;
+      renderStats(); renderTable();
+    } else {
+      document.getElementById('login-err').textContent = 'Username ya password galat hai';
+    }
+  }
+  function doLogout() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('main-screen').style.display = 'none';
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-err').textContent = '';
+  }
+
+  // ─── TABS ───
+  function switchTab(t) {
+    ['emp','hist','import'].forEach(x => {
+      document.getElementById('tab-'+x).classList.toggle('active', x===t);
+      document.getElementById('tab-content-'+x).style.display = x===t ? 'block' : 'none';
+    });
+    if (t==='hist') renderHistory();
+  }
+
+  // ─── STATS ───
+  function renderStats() {
+    const total = employees.length;
+    const active = employees.filter(e=>e.status==='active').length;
+    const hold = employees.filter(e=>e.status==='hold').length;
+    const resigned = employees.filter(e=>e.status==='resigned').length;
+    document.getElementById('stats-row').innerHTML = `
+      <div class="stat-card"><div class="slabel">Total Employees</div><div class="sval">${total}</div></div>
+      <div class="stat-card blue"><div class="slabel">Active</div><div class="sval">${active}</div></div>
+      <div class="stat-card amber"><div class="slabel">On Hold</div><div class="sval">${hold}</div></div>
+      <div class="stat-card red"><div class="slabel">Resigned</div><div class="sval">${resigned}</div></div>
+    `;
+  }
+
+  // ─── TABLE ───
+  function renderTable() {
+    const q = (document.getElementById('search-inp').value || '').toLowerCase();
+    const fs = document.getElementById('filter-status').value;
+    const list = employees.filter(e => {
+      const match = !q || e.name.toLowerCase().includes(q) || e.id.toLowerCase().includes(q) || e.mobile.includes(q) || (e.designation||'').toLowerCase().includes(q);
+      return match && (!fs || e.status===fs);
+    });
+    const tbody = document.getElementById('emp-tbody');
+    if (!list.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty">Koi employee nahi mila</div></td></tr>`; return; }
+    tbody.innerHTML = list.map(e => `
+      <tr>
+        <td><span class="emp-id">${e.id}</span></td>
+        <td title="${e.name}">${e.name}</td>
+        <td>${e.designation ? `<span class="desg-badge">${e.designation}</span>` : '<span style="color:var(--text3)">—</span>'}</td>
+        <td>${e.mobile}</td>
+        <td>${fmtDate(e.joining)}</td>
+        <td>₹${parseInt(e.salary||0).toLocaleString('en-IN')}</td>
+        <td><span class="badge badge-${e.status}">${statusLabel(e.status)}</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="act-btn" title="View" onclick="openDetail('${e.id}')"><i class="ti ti-eye"></i></button>
+            <button class="act-btn" title="Edit" onclick="openEditModal('${e.id}')"><i class="ti ti-edit"></i></button>
+            <button class="act-btn" title="Delete" onclick="deleteEmp('${e.id}')"><i class="ti ti-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ─── HISTORY ───
+  function renderHistory() {
+    const el = document.getElementById('history-list');
+    if (!employees.length) { el.innerHTML = `<div class="empty">Koi record nahi</div>`; return; }
+    el.innerHTML = employees.map(e => `
+      <div class="history-card">
+        <div class="history-head" onclick="toggleHist('hb-${e.id}', this)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="emp-avatar">${initials(e.name)}</div>
+            <div>
+              <div style="font-size:14px;font-weight:500">${e.name}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:3px">
+                ${e.id} &nbsp;·&nbsp;
+                ${e.designation ? `<span class="desg-badge">${e.designation}</span>` : ''}
+                &nbsp;<span class="badge badge-${e.status}">${statusLabel(e.status)}</span>
+              </div>
+            </div>
+          </div>
+          <i class="ti ti-chevron-down" style="font-size:16px;color:var(--text2);transition:transform 0.2s"></i>
+        </div>
+        <div class="history-body" id="hb-${e.id}" style="display:none">
+          <div class="timeline">
+            ${(e.events||[]).map(ev=>`
+              <div class="tl-item">
+                <div class="tl-dot ${ev.type}"></div>
+                <div>
+                  <div class="tl-title">${evLabel(ev.type)}</div>
+                  <div class="tl-date">${fmtDate(ev.date)}</div>
+                  ${ev.note ? `<div class="tl-note">${ev.note}</div>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleHist(id, el) {
+    const box = document.getElementById(id);
+    const open = box.style.display === 'block';
+    box.style.display = open ? 'none' : 'block';
+    el.querySelector('.ti-chevron-down').style.transform = open ? '' : 'rotate(180deg)';
+  }
+
+  // ─── ADD MODAL ───
+  function openAddModal() {
+    const newId = genId();
+    showModal(`
+      <div class="modal-head">
+        <h3>Add New Employee</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="id-chip">
+          Auto Employee ID: <strong style="font-family:monospace;color:var(--blue)">${newId}</strong>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Full Name *</label><input id="f-name" type="text" placeholder="Ramesh Kumar"/></div>
+          <div class="form-field"><label>Mobile *</label><input id="f-mobile" type="text" placeholder="9876543210"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Designation *</label><select id="f-desg">${desgOpts()}</select></div>
+          <div class="form-field"><label>Date of Joining *</label><input id="f-joining" type="date"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Salary (₹)</label><input id="f-salary" type="number" placeholder="15000"/></div>
+          <div class="form-field"><label>Aadhar Number</label><input id="f-aadhar" type="text" placeholder="1234-5678-9012"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Date of Birth</label><input id="f-dob" type="date"/></div>
+          <div class="form-field"><label>Joining Note</label><input id="f-note" type="text" placeholder="Optional..."/></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="saveNewEmp('${newId}')">Save Employee</button>
+      </div>
+    `);
+  }
+
+  function saveNewEmp(id) {
+    const name = document.getElementById('f-name').value.trim();
+    const mobile = document.getElementById('f-mobile').value.trim();
+    const joining = document.getElementById('f-joining').value;
+    const desg = document.getElementById('f-desg').value;
+    if (!name || !mobile || !joining) { alert('Name, Mobile aur Joining Date zaroori hai'); return; }
+    employees.push({
+      id, name, designation: desg, mobile, joining,
+      salary: document.getElementById('f-salary').value || '0',
+      aadhar: document.getElementById('f-aadhar').value || '',
+      dob: document.getElementById('f-dob').value || '',
+      status: 'active',
+      events: [{ type:'joining', date:joining, note: document.getElementById('f-note').value || '' }]
+    });
+    saveData(); closeModal(); renderStats(); renderTable();
+  }
+
+  // ─── EDIT MODAL ───
+  function openEditModal(id) {
+    const e = employees.find(x => x.id===id);
+    if (!e) return;
+    showModal(`
+      <div class="modal-head">
+        <h3>Edit Employee — ${e.id}</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-field"><label>Full Name</label><input id="e-name" type="text" value="${e.name}"/></div>
+          <div class="form-field"><label>Mobile</label><input id="e-mobile" type="text" value="${e.mobile}"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Designation</label><select id="e-desg">${desgOpts(e.designation||'')}</select></div>
+          <div class="form-field"><label>Salary (₹)</label><input id="e-salary" type="number" value="${e.salary}"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Aadhar</label><input id="e-aadhar" type="text" value="${e.aadhar||''}"/></div>
+          <div class="form-field"><label>Date of Birth</label><input id="e-dob" type="date" value="${e.dob||''}"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Status</label>
+            <select id="e-status">
+              <option value="active"${e.status==='active'?' selected':''}>Active</option>
+              <option value="hold"${e.status==='hold'?' selected':''}>Hold</option>
+              <option value="resigned"${e.status==='resigned'?' selected':''}>Resigned</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="saveEdit('${id}')">Update</button>
+      </div>
+    `);
+  }
+
+  function saveEdit(id) {
+    const e = employees.find(x => x.id===id);
+    if (!e) return;
+    e.name = document.getElementById('e-name').value;
+    e.mobile = document.getElementById('e-mobile').value;
+    e.designation = document.getElementById('e-desg').value;
+    e.salary = document.getElementById('e-salary').value;
+    e.aadhar = document.getElementById('e-aadhar').value;
+    e.dob = document.getElementById('e-dob').value;
+    e.status = document.getElementById('e-status').value;
+    saveData(); closeModal(); renderStats(); renderTable();
+  }
+
+  // ─── DETAIL MODAL ───
+  function openDetail(id) {
+    const e = employees.find(x => x.id===id);
+    if (!e) return;
+    showModal(`
+      <div class="modal-head">
+        <h3>Employee Details</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
+          <div class="emp-avatar">${initials(e.name)}</div>
+          <div>
+            <div style="font-size:16px;font-weight:600">${e.name}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:4px">
+              ${e.id} &nbsp;·&nbsp;
+              ${e.designation ? `<span class="desg-badge">${e.designation}</span>` : ''}
+              &nbsp;<span class="badge badge-${e.status}">${statusLabel(e.status)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item"><label>Mobile</label><span>${e.mobile}</span></div>
+          <div class="detail-item"><label>Salary</label><span>₹${parseInt(e.salary||0).toLocaleString('en-IN')}</span></div>
+          <div class="detail-item"><label>Joining Date</label><span>${fmtDate(e.joining)}</span></div>
+          <div class="detail-item"><label>Date of Birth</label><span>${fmtDate(e.dob)||'—'}</span></div>
+          <div class="detail-item"><label>Designation</label><span>${e.designation||'—'}</span></div>
+          <div class="detail-item"><label>Aadhar</label><span>${e.aadhar||'—'}</span></div>
+        </div>
+        <div style="font-size:13px;font-weight:500;margin-bottom:8px">Event History</div>
+        <div class="timeline">
+          ${(e.events||[]).map(ev=>`
+            <div class="tl-item">
+              <div class="tl-dot ${ev.type}"></div>
+              <div>
+                <div class="tl-title">${evLabel(ev.type)}</div>
+                <div class="tl-date">${fmtDate(ev.date)}</div>
+                ${ev.note ? `<div class="tl-note">${ev.note}</div>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="event-btns">
+          ${e.status!=='hold'&&e.status!=='resigned' ? `<button class="ev-btn hold" onclick="addEvent('${id}','hold')"><i class="ti ti-pause"></i> Mark Hold</button>` : ''}
+          ${e.status==='hold' ? `<button class="ev-btn resume" onclick="addEvent('${id}','resume')"><i class="ti ti-player-play"></i> Resume Active</button>` : ''}
+          ${e.status!=='resigned' ? `<button class="ev-btn resign" onclick="addEvent('${id}','resigned')"><i class="ti ti-door-exit"></i> Resign</button>` : ''}
+        </div>
+      </div>
+    `);
+  }
+
+  function addEvent(id, type) {
+    const e = employees.find(x => x.id===id);
+    if (!e) return;
+    const note = prompt(evLabel(type) + ' — note likhein (optional):', '') || '';
+    const today = new Date().toISOString().split('T')[0];
+    e.events.push({ type, date: today, note });
+    if (type==='resigned') e.status='resigned';
+    else if (type==='hold') e.status='hold';
+    else if (type==='resume') e.status='active';
+    saveData(); closeModal(); renderStats(); renderTable(); openDetail(id);
+  }
+
+  function deleteEmp(id) {
+    if (!confirm('Kya aap sach me is employee ko delete karna chahte hain?')) return;
+    employees = employees.filter(x => x.id!==id);
+    saveData(); renderStats(); renderTable();
+  }
+
+  // ─── CSV IMPORT ───
+  function handleCSV(ev) {
+    const file = ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const lines = e.target.result.split('\n').filter(l => l.trim());
+      importBuffer = [];
+      let html = `<div style="margin-top:1rem;font-size:13px;font-weight:500;margin-bottom:8px">Preview (${lines.length} rows mili)</div>`;
+      lines.forEach(line => {
+        const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g,''));
+        if (cols.length < 2) return;
+        const [sn, name, designation, joining, salary, mobile, aadhar, dob] = cols;
+        if (!name || !mobile) return;
+        importBuffer.push({ sn, name, designation: designation||'', joining: parseDate(joining), salary, mobile, aadhar, dob: parseDate(dob) });
+        html += `<div class="imp-row">
+          <span style="font-family:monospace;color:var(--blue);width:34px">${sn}</span>
+          <span style="flex:1;font-weight:500">${name}</span>
+          ${designation ? `<span class="desg-badge" style="margin-right:8px">${designation}</span>` : ''}
+          <span style="color:var(--text2)">${mobile}</span>
+        </div>`;
+      });
+      document.getElementById('import-preview').innerHTML = html;
+      document.getElementById('import-actions').style.display = importBuffer.length ? 'block' : 'none';
+    };
+    reader.readAsText(file);
+  }
+
+  function parseDate(d) {
+    if (!d) return '';
+    d = d.trim();
+    const p = d.split(/[\/\-\.]/);
+    if (p.length===3) { if (p[0].length===4) return d; return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0'); }
+    return d;
+  }
+
+  function confirmImport() {
+    if (!importBuffer.length) return;
+    const count = importBuffer.length;
+    importBuffer.forEach(row => {
+      employees.push({
+        id: genId(),
+        name: row.name, designation: row.designation, mobile: row.mobile,
+        joining: row.joining, salary: row.salary||'0',
+        aadhar: row.aadhar||'', dob: row.dob||'',
+        status: 'active',
+        events: [{ type:'joining', date: row.joining||new Date().toISOString().split('T')[0], note:'Imported from CSV' }]
+      });
+    });
+    saveData();
+    importBuffer = [];
+    document.getElementById('import-preview').innerHTML = `<div class="success-msg"><i class="ti ti-check-circle"></i> ${count} employees successfully import ho gaye!</div>`;
+    document.getElementById('import-actions').style.display = 'none';
+    renderStats(); renderTable();
+    setTimeout(() => switchTab('emp'), 1600);
+  }
+
+  // ─── MODAL HELPERS ───
+  function showModal(html) {
+    document.getElementById('modal-container').innerHTML =
+      `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`;
+  }
+  function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
+
+  // ─── INIT ───
+  loadData();
+</script>
+</body>
+</html>
