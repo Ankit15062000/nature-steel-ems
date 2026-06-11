@@ -98,7 +98,10 @@
       border-radius: var(--radius);
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 0.75rem;
-      color: var(--blue-light); font-size: 24px;
+      overflow: hidden;
+    }
+    .brand-icon img {
+      width: 100%; height: 100%; object-fit: contain;
     }
     .brand h1 { font-size: 18px; font-weight: 600; }
     .brand p { font-size: 13px; color: var(--text2); margin-top: 4px; }
@@ -129,7 +132,10 @@
       background: var(--blue-dark);
       border-radius: var(--radius);
       display: flex; align-items: center; justify-content: center;
-      color: var(--blue-light); font-size: 16px;
+      overflow: hidden;
+    }
+    .topbar-logo img {
+      width: 100%; height: 100%; object-fit: contain;
     }
     .topbar h2 { font-size: 15px; font-weight: 500; }
     .topbar-right { display: flex; align-items: center; gap: 8px; }
@@ -264,6 +270,8 @@
       border-radius: var(--radius-lg);
       border: 0.5px solid var(--border);
       width: 100%; max-width: 520px;
+      max-height: calc(100vh - 80px);
+      overflow: hidden;
     }
     .modal-head {
       padding: 1rem 1.25rem;
@@ -276,11 +284,28 @@
       font-size: 20px; color: var(--text2); padding: 2px 6px;
       line-height: 1;
     }
-    .modal-body { padding: 1.25rem; }
+    .modal-body { padding: 1.25rem; max-height: calc(100vh - 190px); overflow-y: auto; }
     .modal-foot {
       padding: 1rem 1.25rem;
       border-top: 0.5px solid var(--border);
       display: flex; gap: 8px; justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .detail-photo {
+      margin-bottom: 1rem;
+      max-width: 30%;
+      max-height: 130px;
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .detail-photo img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      object-position: right bottom;
+      display: block;
     }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .form-row.full { grid-template-columns: 1fr; }
@@ -386,7 +411,7 @@
 <div class="login-wrap" id="login-screen">
   <div class="login-card">
     <div class="brand">
-      <div class="brand-icon"><i class="ti ti-building-factory-2"></i></div>
+      <div class="brand-icon"><img src="nature-logo.png" alt="Nature Steel Logo"/></div>
       <h1>Nature Steel Furniture</h1>
       <p>Employee Management System</p>
     </div>
@@ -399,6 +424,7 @@
       <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
     <button class="btn-primary" onclick="doLogin()">Login</button>
+    <div style="margin-top:0.75rem;text-align:center;font-size:12px;color:var(--blue);cursor:pointer;" onclick="openForgotPasswordModal()">Forgot Password?</div>
     <div class="login-err" id="login-err"></div>
   </div>
 </div>
@@ -407,7 +433,7 @@
 <div class="main-wrap" id="main-screen">
   <div class="topbar">
     <div class="topbar-left">
-      <div class="topbar-logo"><i class="ti ti-building-factory-2"></i></div>
+      <div class="topbar-logo"><img src="nature-logo.png" alt="Nature Steel Logo"/></div>
       <h2>Nature Steel — Employee Records</h2>
     </div>
     <div class="topbar-right">
@@ -420,6 +446,7 @@
     <div class="tab active" id="tab-emp" onclick="switchTab('emp')"><i class="ti ti-users"></i> Employees</div>
     <div class="tab" id="tab-hist" onclick="switchTab('hist')"><i class="ti ti-history"></i> History</div>
     <div class="tab" id="tab-import" onclick="switchTab('import')"><i class="ti ti-file-upload"></i> Import CSV</div>
+    <div class="tab" id="tab-users" onclick="switchTab('users')" style="display:none"><i class="ti ti-user-plus"></i> Manage Users</div>
   </div>
 
   <!-- EMPLOYEES TAB -->
@@ -433,8 +460,8 @@
         <option value="hold">On Hold</option>
         <option value="resigned">Resigned</option>
       </select>
-      <button class="btn-outline" onclick="switchTab('import')"><i class="ti ti-upload"></i> Import</button>
-      <button class="btn-add" onclick="openAddModal()"><i class="ti ti-plus"></i> Add Employee</button>
+          <button class="btn-outline" id="toolbar-import-btn" onclick="switchTab('import')"><i class="ti ti-upload"></i> Import</button>
+      <button class="btn-add" id="toolbar-add-btn" onclick="openAddModal()"><i class="ti ti-plus"></i> Add Employee</button>
     </div>
     <div class="table-wrap">
       <table>
@@ -465,7 +492,7 @@
     <div class="import-card">
       <h3 style="font-size:15px;font-weight:500;margin-bottom:4px">Import Employees from CSV</h3>
       <p style="font-size:12px;color:var(--text2);margin-bottom:1rem">
-        CSV column order: <strong>SN, Name, Designation, Date of Joining, Salary, Mobile, Aadhar, Date of Birth</strong>
+        CSV column order: <strong>Name, Designation, Mobile Number, Date of Joining, Aadhar Number, Date of Birth, Salary</strong>
       </p>
       <div class="import-zone" onclick="document.getElementById('csv-file').click()">
         <i class="ti ti-file-spreadsheet" style="font-size:36px;color:var(--text3)"></i>
@@ -474,8 +501,40 @@
         <input type="file" id="csv-file" accept=".csv" onchange="handleCSV(event)"/>
       </div>
       <div id="import-preview"></div>
-      <div id="import-actions" style="display:none;margin-top:1rem">
+      <div id="import-actions" style="display:none;margin-top:1rem;gap:8px;flex-wrap:wrap;">
         <button class="btn-save" onclick="confirmImport()"><i class="ti ti-check"></i> Import All Employees</button>
+        <button class="btn-outline" onclick="clearImportSelection()"><i class="ti ti-trash"></i> Clear Selection</button>
+      </div>
+      <div style="margin-top:1rem; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-outline" onclick="clearImportedData()"><i class="ti ti-trash"></i> Delete Imported Records</button>
+      </div>
+    </div>
+  </div>
+  <div class="content" id="tab-content-users" style="display:none">
+    <div class="import-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px;">
+        <div>
+          <h3 style="font-size:15px;font-weight:500;margin-bottom:4px">User Management</h3>
+          <p style="font-size:12px;color:var(--text2);margin:0">Admin can add users and assign permissions for employee actions.</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-outline" onclick="openAddDesignationModal()"><i class="ti ti-list"></i> Add Designation</button>
+          <button class="btn-add" onclick="openAddUserModal()"><i class="ti ti-user-plus"></i> Add User</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:110px">Username</th>
+              <th style="width:110px">Role</th>
+              <th style="width:260px">Permissions</th>
+              <th style="width:140px">Recovery Code</th>
+              <th style="width:90px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-tbody"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -486,12 +545,12 @@
 
 <script>
   // ─── CONFIG ───
-  const CREDS = [
-    { u: 'admin', p: 'nsf@2024' },
-    { u: 'ankit', p: 'nature123' }
+  const DEFAULT_USERS = [
+    { username: 'admin', password: 'nsf@2024', role: 'admin', recovery: 'nature123', perms: { manageEmployees: true, importData: true, viewHistory: true, manageUsers: true } },
+    { username: 'ankit', password: 'nature123', role: 'user', recovery: 'user123', perms: { manageEmployees: false, importData: false, viewHistory: true, manageUsers: false } }
   ];
 
-  const DESIGNATIONS = [
+  const DEFAULT_DESIGNATIONS = [
     'Welder','Fabricator','Painter','Helper','Supervisor',
     'Store Keeper','Accountant','Driver','Loader',
     'Carpenter','Electrician','Manager','Other'
@@ -499,23 +558,73 @@
 
   // ─── STATE ───
   let employees = [];
+  let DESIGNATIONS = [];
+  let users = [];
+  let currentUser = null;
   let importBuffer = [];
 
   // ─── STORAGE ───
   function saveData() {
     try { localStorage.setItem('nsf_employees', JSON.stringify(employees)); } catch(e) {}
   }
+  function saveUsers() {
+    try { localStorage.setItem('nsf_users', JSON.stringify(users)); } catch(e) {}
+  }
+  function saveDesignations() {
+    try { localStorage.setItem('nsf_designations', JSON.stringify(DESIGNATIONS)); } catch(e) {}
+  }
+  function loadDesignations() {
+    try {
+      const d = localStorage.getItem('nsf_designations');
+      if (d) { DESIGNATIONS = JSON.parse(d); return; }
+    } catch(e) {}
+    DESIGNATIONS = DEFAULT_DESIGNATIONS.slice();
+    saveDesignations();
+  }
+  function loadUsers() {
+    try {
+      const d = localStorage.getItem('nsf_users');
+      if (d) {
+        users = JSON.parse(d);
+        normalizeUsers();
+        return;
+      }
+    } catch(e) {}
+    users = DEFAULT_USERS.slice();
+    normalizeUsers();
+    saveUsers();
+  }
+
+  function normalizeUsers() {
+    users = users.map(u => ({
+      username: u.username,
+      password: u.password,
+      role: u.role || 'user',
+      recovery: u.recovery || 'recovery123',
+      perms: {
+        manageEmployees: !!u.perms?.manageEmployees,
+        importData: !!u.perms?.importData,
+        viewHistory: !!u.perms?.viewHistory,
+        manageUsers: !!u.perms?.manageUsers,
+      }
+    }));
+  }
   function loadData() {
     try {
       const d = localStorage.getItem('nsf_employees');
-      if (d) { employees = JSON.parse(d); return; }
+      if (d) { 
+        employees = JSON.parse(d);
+        // Normalize: ensure all employees have photo field
+        employees = employees.map(e => ({ ...e, photo: e.photo || '' }));
+        return; 
+      }
     } catch(e) {}
     // Default sample data
     employees = [
-      { id:'N00001', name:'Rajesh Kumar', designation:'Welder', mobile:'9876543210', joining:'2021-03-15', salary:'18000', aadhar:'1234-5678-9012', dob:'1990-05-20', status:'active', events:[{type:'joining',date:'2021-03-15',note:'Joined as welder'}] },
-      { id:'N00002', name:'Suresh Singh', designation:'Painter', mobile:'9812345678', joining:'2020-07-01', salary:'15000', aadhar:'2345-6789-0123', dob:'1988-11-10', status:'resigned', events:[{type:'joining',date:'2020-07-01',note:''},{type:'resigned',date:'2023-04-30',note:'Personal reasons'}] },
-      { id:'N00003', name:'Ramesh Yadav', designation:'Supervisor', mobile:'9701234567', joining:'2022-01-10', salary:'20000', aadhar:'3456-7890-1234', dob:'1995-02-28', status:'hold', events:[{type:'joining',date:'2022-01-10',note:''},{type:'hold',date:'2024-11-01',note:'Investigation pending'}] },
-      { id:'N00004', name:'Priya Sharma', designation:'Accountant', mobile:'9654321098', joining:'2023-06-01', salary:'16000', aadhar:'4567-8901-2345', dob:'1997-08-15', status:'active', events:[{type:'joining',date:'2023-06-01',note:''}] },
+      { id:'N00001', name:'Rajesh Kumar', designation:'Welder', mobile:'9876543210', joining:'2021-03-15', salary:'18000', aadhar:'1234-5678-9012', dob:'1990-05-20', photo:'', status:'active', events:[{type:'joining',date:'2021-03-15',note:'Joined as welder'}] },
+      { id:'N00002', name:'Suresh Singh', designation:'Painter', mobile:'9812345678', joining:'2020-07-01', salary:'15000', aadhar:'2345-6789-0123', dob:'1988-11-10', photo:'', status:'resigned', events:[{type:'joining',date:'2020-07-01',note:''},{type:'resigned',date:'2023-04-30',note:'Personal reasons'}] },
+      { id:'N00003', name:'Ramesh Yadav', designation:'Supervisor', mobile:'9701234567', joining:'2022-01-10', salary:'20000', aadhar:'3456-7890-1234', dob:'1995-02-28', photo:'', status:'hold', events:[{type:'joining',date:'2022-01-10',note:''},{type:'hold',date:'2024-11-01',note:'Investigation pending'}] },
+      { id:'N00004', name:'Priya Sharma', designation:'Accountant', mobile:'9654321098', joining:'2023-06-01', salary:'16000', aadhar:'4567-8901-2345', dob:'1997-08-15', photo:'', status:'active', events:[{type:'joining',date:'2023-06-01',note:''}] },
     ];
     saveData();
   }
@@ -531,6 +640,11 @@
     const p = d.split('-');
     return p.length === 3 ? p[2]+'/'+p[1]+'/'+p[0] : d;
   }
+  function fmtMoney(v) {
+    const cleaned = String(v||'').replace(/[^0-9\.-]/g, '').trim();
+    const value = Number(cleaned);
+    return Number.isFinite(value) ? '₹' + value.toLocaleString('en-IN') : '—';
+  }
   function statusLabel(s) { return {active:'Active',hold:'Hold',resigned:'Resigned'}[s] || s; }
   function evLabel(t) { return {joining:'Joining',hold:'Hold / Suspension',resume:'Resume / Active',resigned:'Resignation'}[t] || t; }
   function initials(name) { return name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
@@ -538,34 +652,280 @@
     return '<option value="">— Select —</option>' + DESIGNATIONS.map(d=>`<option value="${d}"${d===sel?' selected':''}>${d}</option>`).join('');
   }
 
+  function compressPhoto(file, callback) {
+    if (!file) { callback(''); return; }
+    // if (file.type !== 'image/jpeg') { alert('Sirf JPG format allowed hai'); callback(''); return; }
+    if (file.type !== 'image/jpeg' && file.type !== 'image/png') { alert('Sirf JPG/PNG format allowed hai'); callback(''); return; }
+    if (file.size > 1024 * 1024) { alert('Photo 5MB se chhota hona chahiye'); callback(''); return; }
+    const reader = new FileReader();    if (file.type !== 'image/jpeg' && file.type !== 'image/png') { alert('Sirf JPG/PNG format allowed hai'); input.value = ''; return; }
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxWidth = 400, maxHeight = 400;
+        let width = img.width, height = img.height;
+        if (width > height) {
+          if (width > maxWidth) { height = Math.round(height * (maxWidth / width)); width = maxWidth; }
+        } else {
+          if (height > maxHeight) { width = Math.round(width * (maxHeight / height)); height = maxHeight; }
+        }
+        canvas.width = width; canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        callback(compressed);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handlePhotoUpload(input, previewId) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.type !== 'image/jpeg' && file.type !== 'image/png') { alert('Sirf JPG/PNG format allowed hai'); input.value = ''; return; }
+    // if (file.type !== 'image/jpeg') { alert('Sirf JPG format allowed hai'); input.value = ''; return; }
+    if (file.size > 1024 * 1024) { alert('Photo 5MB se chhota hona chahiye'); input.value = ''; return; }
+    compressPhoto(file, (compressed) => {
+      document.getElementById(previewId).textContent = '✓ Photo uploaded (' + (compressed.length / 1024).toFixed(1) + ' KB)';
+      window.currentPhotoData = compressed;
+    });
+  }
+
+  function configureAccess() {
+    const isAdmin = currentUser?.role === 'admin';
+    const canImport = isAdmin || currentUser?.perms?.importData;
+    const canHistory = isAdmin || currentUser?.perms?.viewHistory;
+    const canUsers = isAdmin || currentUser?.perms?.manageUsers;
+    document.getElementById('tab-import').style.display = canImport ? 'flex' : 'none';
+    document.getElementById('tab-hist').style.display = canHistory ? 'flex' : 'none';
+    document.getElementById('tab-users').style.display = canUsers ? 'flex' : 'none';
+    document.getElementById('toolbar-import-btn').style.display = canImport ? 'inline-flex' : 'none';
+    document.getElementById('toolbar-add-btn').style.display = isAdmin || currentUser?.perms?.manageEmployees ? 'inline-flex' : 'none';
+    if (!canImport && document.getElementById('tab-import').classList.contains('active')) switchTab('emp');
+    if (!canHistory && document.getElementById('tab-hist').classList.contains('active')) switchTab('emp');
+    if (!canUsers && document.getElementById('tab-users').classList.contains('active')) switchTab('emp');
+  }
+
+  function renderUsers() {
+    const tbody = document.getElementById('user-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td>${u.username}</td>
+        <td>${u.role}</td>
+        <td>${Object.entries(u.perms || {}).filter(([_, v]) => v).map(([k]) => k.replace(/([A-Z])/g, ' $1')).join(', ') || 'None'}</td>
+        <td>${u.recovery || '—'}</td>
+        <td>
+          <div class="action-btns">
+            <button class="act-btn" title="Delete User" onclick="deleteUser('${u.username}')"><i class="ti ti-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function openAddUserModal() {
+    showModal(`
+      <div class="modal-head">
+        <h3>Add New User</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row full">
+          <div class="form-field"><label>Username *</label><input id="u-username" type="text" placeholder="username"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="form-field"><label>Password *</label><input id="u-password" type="password" placeholder="Password"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="form-field"><label>Recovery Code *</label><input id="u-recovery" type="text" placeholder="Use this to reset password"/>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px">Yeh code user bhool jane par password reset karne ke kaam aayega. Simple aur yaadgar rakhen.</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Role</label>
+            <select id="u-role">
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-field">
+            <label>Permissions</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <label><input type="checkbox" id="perm-manageEmployees"/> Manage Employees</label>
+              <label><input type="checkbox" id="perm-importData"/> Import CSV</label>
+              <label><input type="checkbox" id="perm-viewHistory"/> View History</label>
+              <label><input type="checkbox" id="perm-manageUsers"/> Manage Users</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="saveNewUser()">Create User</button>
+      </div>
+    `);
+  }
+
+  function openAddDesignationModal() {
+    showModal(`
+      <div class="modal-head">
+        <h3>Manage Designations</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row full">
+          <div class="form-field"><label>New Designation</label><input id="d-name" type="text" placeholder="e.g. Painting Incharge"/></div>
+        </div>
+        <div style="margin-top:10px;font-size:13px;color:var(--text2)">Existing designations:</div>
+        <div style="margin-top:8px">
+          ${DESIGNATIONS.map(d=>`<div style="padding:6px 0;border-bottom:0.5px solid var(--border);">${d}</div>`).join('')}
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="closeModal()">Close</button>
+        <button class="btn-save" onclick="saveNewDesignation()">Add Designation</button>
+      </div>
+    `);
+  }
+
+  function saveNewDesignation() {
+    const name = document.getElementById('d-name').value.trim();
+    if (!name) { alert('Designation ka naam daalen'); return; }
+    if (DESIGNATIONS.includes(name)) { alert('Yeh designation pehle se maujood hai'); return; }
+    DESIGNATIONS.push(name);
+    saveDesignations();
+    closeModal();
+    alert('Designation add ho gaya');
+  }
+
+  function saveNewUser() {
+    const username = document.getElementById('u-username').value.trim();
+    const password = document.getElementById('u-password').value;
+    const recovery = document.getElementById('u-recovery').value.trim();
+    const role = document.getElementById('u-role').value;
+    if (!username || !password || !recovery) {
+      alert('Username, password aur recovery code zaroori hai');
+      return;
+    }
+    if (users.find(u => u.username === username)) {
+      alert('Yeh username pehle se maujood hai');
+      return;
+    }
+    const perms = {
+      manageEmployees: document.getElementById('perm-manageEmployees').checked,
+      importData: document.getElementById('perm-importData').checked,
+      viewHistory: document.getElementById('perm-viewHistory').checked,
+      manageUsers: document.getElementById('perm-manageUsers').checked,
+    };
+    if (role === 'admin') {
+      perms.manageEmployees = perms.importData = perms.viewHistory = perms.manageUsers = true;
+    }
+    users.push({ username, password, recovery, role, perms });
+    saveUsers();
+    closeModal();
+    renderUsers();
+  }
+
+  function deleteUser(username) {
+    if (!confirm(`Kya aap ${username} ko delete karna chahte hain?`)) return;
+    users = users.filter(u => u.username !== username);
+    saveUsers();
+    renderUsers();
+  }
+
+  function openForgotPasswordModal() {
+    showModal(`
+      <div class="modal-head">
+        <h3>Forgot Password</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row full">
+          <div class="form-field"><label>Username</label><input id="fp-username" type="text" placeholder="Enter your username"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="form-field"><label>Recovery Code</label><input id="fp-recovery" type="text" placeholder="Enter your recovery code"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="form-field"><label>New Password</label><input id="fp-password" type="password" placeholder="New password"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="form-field"><label>Confirm Password</label><input id="fp-password-confirm" type="password" placeholder="Confirm new password"/></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save" onclick="resetPassword()">Reset Password</button>
+      </div>
+    `);
+  }
+
+  function resetPassword() {
+    const username = document.getElementById('fp-username').value.trim();
+    const recovery = document.getElementById('fp-recovery').value.trim();
+    const password = document.getElementById('fp-password').value;
+    const confirmPass = document.getElementById('fp-password-confirm').value;
+    if (!username || !recovery || !password || !confirmPass) {
+      alert('Sab fields bhariye');
+      return;
+    }
+    if (password !== confirmPass) {
+      alert('Passwords match nahi kar rahe');
+      return;
+    }
+    const user = users.find(u => u.username === username);
+    if (!user) { alert('Username nahi mila'); return; }
+    if (user.recovery !== recovery) { alert('Recovery code galat hai'); return; }
+    user.password = password;
+    saveUsers();
+    closeModal();
+    alert('Password reset ho gaya. Ab login karein.');
+  }
+
   // ─── AUTH ───
   function doLogin() {
     const u = document.getElementById('login-user').value.trim();
     const p = document.getElementById('login-pass').value;
-    if (CREDS.find(c => c.u===u && c.p===p)) {
+    const user = users.find(item => item.username === u && item.password === p);
+    if (user) {
+      currentUser = user;
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('main-screen').style.display = 'flex';
       document.getElementById('logged-user').textContent = u;
+      configureAccess();
       renderStats(); renderTable();
+      if (currentUser.perms.manageUsers) renderUsers();
     } else {
       document.getElementById('login-err').textContent = 'Username ya password galat hai';
     }
   }
   function doLogout() {
+    currentUser = null;
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('main-screen').style.display = 'none';
     document.getElementById('login-user').value = '';
     document.getElementById('login-pass').value = '';
     document.getElementById('login-err').textContent = '';
+    document.getElementById('tab-users').style.display = 'none';
+    document.getElementById('toolbar-import-btn').style.display = 'inline-flex';
+    document.getElementById('toolbar-add-btn').style.display = 'inline-flex';
   }
 
   // ─── TABS ───
   function switchTab(t) {
-    ['emp','hist','import'].forEach(x => {
-      document.getElementById('tab-'+x).classList.toggle('active', x===t);
-      document.getElementById('tab-content-'+x).style.display = x===t ? 'block' : 'none';
+    ['emp','hist','import','users'].forEach(x => {
+      const tab = document.getElementById('tab-'+x);
+      const content = document.getElementById('tab-content-'+x);
+      if (!tab || !content) return;
+      tab.classList.toggle('active', x===t);
+      content.style.display = x===t ? 'block' : 'none';
     });
     if (t==='hist') renderHistory();
+    if (t==='users') renderUsers();
   }
 
   // ─── STATS ───
@@ -592,6 +952,7 @@
     });
     const tbody = document.getElementById('emp-tbody');
     if (!list.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty">Koi employee nahi mila</div></td></tr>`; return; }
+    const canManage = currentUser && currentUser.perms && currentUser.perms.manageEmployees;
     tbody.innerHTML = list.map(e => `
       <tr>
         <td><span class="emp-id">${e.id}</span></td>
@@ -599,13 +960,13 @@
         <td>${e.designation ? `<span class="desg-badge">${e.designation}</span>` : '<span style="color:var(--text3)">—</span>'}</td>
         <td>${e.mobile}</td>
         <td>${fmtDate(e.joining)}</td>
-        <td>₹${parseInt(e.salary||0).toLocaleString('en-IN')}</td>
+        <td>${fmtMoney(e.salary)}</td>
         <td><span class="badge badge-${e.status}">${statusLabel(e.status)}</span></td>
         <td>
           <div class="action-btns">
             <button class="act-btn" title="View" onclick="openDetail('${e.id}')"><i class="ti ti-eye"></i></button>
-            <button class="act-btn" title="Edit" onclick="openEditModal('${e.id}')"><i class="ti ti-edit"></i></button>
-            <button class="act-btn" title="Delete" onclick="deleteEmp('${e.id}')"><i class="ti ti-trash"></i></button>
+            ${canManage ? `<button class="act-btn" title="Edit" onclick="openEditModal('${e.id}')"><i class="ti ti-edit"></i></button>
+            <button class="act-btn" title="Delete" onclick="deleteEmp('${e.id}')"><i class="ti ti-trash"></i></button>` : ''}
           </div>
         </td>
       </tr>
@@ -671,18 +1032,18 @@
         </div>
         <div class="form-row">
           <div class="form-field"><label>Full Name *</label><input id="f-name" type="text" placeholder="Ramesh Kumar"/></div>
-          <div class="form-field"><label>Mobile *</label><input id="f-mobile" type="text" placeholder="9876543210"/></div>
+          <div class="form-field"><label>Designation *</label><select id="f-desg">${desgOpts()}</select></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Designation *</label><select id="f-desg">${desgOpts()}</select></div>
+          <div class="form-field"><label>Mobile *</label><input id="f-mobile" type="text" placeholder="9876543210"/></div>
           <div class="form-field"><label>Date of Joining *</label><input id="f-joining" type="date"/></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Salary (₹)</label><input id="f-salary" type="number" placeholder="15000"/></div>
           <div class="form-field"><label>Aadhar Number</label><input id="f-aadhar" type="text" placeholder="1234-5678-9012"/></div>
+          <div class="form-field"><label>Date of Birth</label><input id="f-dob" type="date"/></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Date of Birth</label><input id="f-dob" type="date"/></div>
+          <div class="form-field"><label>Salary (₹)</label><input id="f-salary" type="number" placeholder="15000"/></div>
           <div class="form-field"><label>Joining Note</label><input id="f-note" type="text" placeholder="Optional..."/></div>
         </div>
       </div>
@@ -704,9 +1065,11 @@
       salary: document.getElementById('f-salary').value || '0',
       aadhar: document.getElementById('f-aadhar').value || '',
       dob: document.getElementById('f-dob').value || '',
+      photo: window.currentPhotoData || '',
       status: 'active',
       events: [{ type:'joining', date:joining, note: document.getElementById('f-note').value || '' }]
     });
+    window.currentPhotoData = ''; 
     saveData(); closeModal(); renderStats(); renderTable();
   }
 
@@ -722,15 +1085,24 @@
       <div class="modal-body">
         <div class="form-row">
           <div class="form-field"><label>Full Name</label><input id="e-name" type="text" value="${e.name}"/></div>
-          <div class="form-field"><label>Mobile</label><input id="e-mobile" type="text" value="${e.mobile}"/></div>
-        </div>
-        <div class="form-row">
           <div class="form-field"><label>Designation</label><select id="e-desg">${desgOpts(e.designation||'')}</select></div>
-          <div class="form-field"><label>Salary (₹)</label><input id="e-salary" type="number" value="${e.salary}"/></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Aadhar</label><input id="e-aadhar" type="text" value="${e.aadhar||''}"/></div>
+          <div class="form-field"><label>Mobile</label><input id="e-mobile" type="text" value="${e.mobile}"/></div>
+          <div class="form-field"><label>Date of Joining</label><input id="e-joining" type="date" value="${e.joining}"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Salary (₹)</label><input id="e-salary" type="number" value="${e.salary}"/></div>
+          <div class="form-field"><label>Aadhar Number</label><input id="e-aadhar" type="text" value="${e.aadhar||''}"/></div>
+        </div>
+        <div class="form-row">
           <div class="form-field"><label>Date of Birth</label><input id="e-dob" type="date" value="${e.dob||''}"/></div>
+        </div>
+        <div class="form-row full">
+          <div class="form-field"><label>Photo (JPG/PNG only, max 5MB)</label>
+            <input id="e-photo" type="file" accept=".jpg,.png" onchange="handlePhotoUpload(this, 'e-photo-preview')"/>
+            <div id="e-photo-preview" style="margin-top:8px;font-size:12px;color:var(--text2)">${e.photo ? '✓ Photo already uploaded' : 'No photo selected'}</div>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-field"><label>Status</label>
@@ -753,12 +1125,15 @@
     const e = employees.find(x => x.id===id);
     if (!e) return;
     e.name = document.getElementById('e-name').value;
-    e.mobile = document.getElementById('e-mobile').value;
     e.designation = document.getElementById('e-desg').value;
+    e.mobile = document.getElementById('e-mobile').value;
+    e.joining = document.getElementById('e-joining').value;
     e.salary = document.getElementById('e-salary').value;
     e.aadhar = document.getElementById('e-aadhar').value;
     e.dob = document.getElementById('e-dob').value;
     e.status = document.getElementById('e-status').value;
+    if (window.currentPhotoData) e.photo = window.currentPhotoData;
+    window.currentPhotoData = '';
     saveData(); closeModal(); renderStats(); renderTable();
   }
 
@@ -783,9 +1158,10 @@
             </div>
           </div>
         </div>
+        ${e.photo ? `<div class="detail-photo"><img src="${e.photo}"/></div>` : ''}
         <div class="detail-grid">
           <div class="detail-item"><label>Mobile</label><span>${e.mobile}</span></div>
-          <div class="detail-item"><label>Salary</label><span>₹${parseInt(e.salary||0).toLocaleString('en-IN')}</span></div>
+          <div class="detail-item"><label>Salary</label><span>${fmtMoney(e.salary)}</span></div>
           <div class="detail-item"><label>Joining Date</label><span>${fmtDate(e.joining)}</span></div>
           <div class="detail-item"><label>Date of Birth</label><span>${fmtDate(e.dob)||'—'}</span></div>
           <div class="detail-item"><label>Designation</label><span>${e.designation||'—'}</span></div>
@@ -842,21 +1218,54 @@
       let html = `<div style="margin-top:1rem;font-size:13px;font-weight:500;margin-bottom:8px">Preview (${lines.length} rows mili)</div>`;
       lines.forEach(line => {
         const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g,''));
-        if (cols.length < 2) return;
-        const [sn, name, designation, joining, salary, mobile, aadhar, dob] = cols;
-        if (!name || !mobile) return;
-        importBuffer.push({ sn, name, designation: designation||'', joining: parseDate(joining), salary, mobile, aadhar, dob: parseDate(dob) });
+        if (cols.length < 7) return;
+        let row;
+        if (cols.length === 7) {
+          const [name, designation, mobile, joining, aadhar, dob, salary] = cols;
+          row = { name, designation, mobile, joining, aadhar, dob, salary };
+        } else {
+          const [sn, name, designation, mobile, joining, aadhar, dob, salary] = cols;
+          row = { name, designation, mobile, joining, aadhar, dob, salary };
+        }
+        if (!row.name || !row.mobile) return;
+        row.salary = String(row.salary||'').replace(/[^0-9\.-]/g, '').trim();
+        importBuffer.push({
+          ...row,
+          joining: parseDate(row.joining),
+          dob: parseDate(row.dob)
+        });
         html += `<div class="imp-row">
-          <span style="font-family:monospace;color:var(--blue);width:34px">${sn}</span>
-          <span style="flex:1;font-weight:500">${name}</span>
-          ${designation ? `<span class="desg-badge" style="margin-right:8px">${designation}</span>` : ''}
-          <span style="color:var(--text2)">${mobile}</span>
+          <span style="font-family:monospace;color:var(--blue);width:34px">${row.name}</span>
+          <span style="flex:1;font-weight:500">${row.name}</span>
+          ${row.designation ? `<span class="desg-badge" style="margin-right:8px">${row.designation}</span>` : ''}
+          <span style="color:var(--text2)">${row.mobile}</span>
         </div>`;
       });
       document.getElementById('import-preview').innerHTML = html;
-      document.getElementById('import-actions').style.display = importBuffer.length ? 'block' : 'none';
+      document.getElementById('import-actions').style.display = importBuffer.length ? 'flex' : 'none';
     };
     reader.readAsText(file);
+  }
+
+  function clearImportSelection() {
+    importBuffer = [];
+    document.getElementById('csv-file').value = '';
+    document.getElementById('import-preview').innerHTML = `<div class="success-msg"><i class="ti ti-check-circle"></i> CSV selection clear ho gaya. Ab naya file choose kar sakte ho.</div>`;
+    document.getElementById('import-actions').style.display = 'none';
+  }
+
+  function clearImportedData() {
+    const before = employees.length;
+    employees = employees.filter(e => !e.imported && !(e.events||[]).some(ev => ev.note === 'Imported from CSV'));
+    const removed = before - employees.length;
+    if (!removed) {
+      alert('Koi imported record nahi mila jo delete ho sake.');
+      return;
+    }
+    saveData();
+    renderStats(); renderTable();
+    document.getElementById('import-preview').innerHTML = `<div class="success-msg"><i class="ti ti-check-circle"></i> ${removed} imported record(s) delete ho gaye.</div>`;
+    document.getElementById('import-actions').style.display = 'none';
   }
 
   function parseDate(d) {
@@ -876,12 +1285,15 @@
         name: row.name, designation: row.designation, mobile: row.mobile,
         joining: row.joining, salary: row.salary||'0',
         aadhar: row.aadhar||'', dob: row.dob||'',
+        photo: '',
         status: 'active',
+        imported: true,
         events: [{ type:'joining', date: row.joining||new Date().toISOString().split('T')[0], note:'Imported from CSV' }]
       });
     });
     saveData();
     importBuffer = [];
+    document.getElementById('csv-file').value = '';
     document.getElementById('import-preview').innerHTML = `<div class="success-msg"><i class="ti ti-check-circle"></i> ${count} employees successfully import ho gaye!</div>`;
     document.getElementById('import-actions').style.display = 'none';
     renderStats(); renderTable();
@@ -896,6 +1308,8 @@
   function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
 
   // ─── INIT ───
+  loadUsers();
+  loadDesignations();
   loadData();
 </script>
 </body>
