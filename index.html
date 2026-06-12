@@ -812,7 +812,7 @@
   }
 
   // ─── STATS ───
-  function renderStats() {
+ window.renderStats = function renderStats() {
     const total=employees.length, active=employees.filter(e=>e.status==='active').length,
           hold=employees.filter(e=>e.status==='hold').length, resigned=employees.filter(e=>e.status==='resigned').length;
     document.getElementById('stats-row').innerHTML = `
@@ -823,7 +823,7 @@
   }
 
   // ─── TABLE ───
-  function renderTable() {
+ window.renderTable = function renderTable() {
     const q = (document.getElementById('search-inp').value||'').toLowerCase();
     const fs = document.getElementById('filter-status').value;
     const list = employees.filter(e => {
@@ -851,7 +851,7 @@
   }
 
   // ─── HISTORY ───
-  function renderHistory() {
+ window.renderHistory = function renderHistory() {
     const el = document.getElementById('history-list');
     if (!employees.length) { el.innerHTML=`<div class="empty">Koi record nahi</div>`; return; }
     el.innerHTML = employees.map(e=>`
