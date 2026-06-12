@@ -907,6 +907,12 @@
           <div class="form-field"><label>Salary (₹)</label><input id="f-salary" type="number" placeholder="000"/></div>
           <div class="form-field"><label>Joining Note</label><input id="f-note" type="text" placeholder="Optional..."/></div>
         </div>
+        <div class="form-row full">
+          <div class="form-field"><label>Photo (JPG/PNG only, max 5MB)</label>
+            <input id="f-photo" type="file" accept=".jpg,.png" onchange="handlePhotoUpload(this, 'f-photo-preview')"/>
+            <div id="f-photo-preview" style="margin-top:8px;font-size:12px;color:var(--text2)">No photo selected</div>
+          </div>
+        </div>
       </div>
       <div class="modal-foot"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveNewEmp('${newId}')">Save Employee</button></div>
     `);
