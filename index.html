@@ -900,15 +900,14 @@
           <div class="form-field"><label>Date of Joining *</label><input id="f-joining" type="date"/></div>
         </div>
         <div class="form-row">
-          <div class="form-field"><label>Aadhar Number</label><input id="f-aadhar" type="text" placeholder="1234-5678-9012"/></div>
+          <div class="form-field"><label>Aadhar Number</label><input id="f-aadhar" type="text" placeholder="1234-5678-9012" required/></div>
           <div class="form-field"><label>Date of Birth</label><input id="f-dob" type="date"/></div>
         </div>
-       <div class="form-row full">
-  <div class="form-field"><label>Photo (JPG/PNG only, max 5MB)</label>
-    <input id="f-photo" type="file" accept=".jpg,.png" onchange="handlePhotoUpload(this, 'f-photo-preview')"/>
-    <div id="f-photo-preview" style="margin-top:8px;font-size:12px;color:var(--text2)">No photo selected</div>
-  </div>
-</div>
+        <div class="form-row">
+          <div class="form-field"><label>Salary (₹)</label><input id="f-salary" type="number" placeholder="000"/></div>
+          <div class="form-field"><label>Joining Note</label><input id="f-note" type="text" placeholder="Optional..."/></div>
+        </div>
+      </div>
       <div class="modal-foot"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveNewEmp('${newId}')">Save Employee</button></div>
     `);
   }
@@ -917,7 +916,9 @@
     const name=document.getElementById('f-name').value.trim();
     const mobile=document.getElementById('f-mobile').value.trim();
     const joining=document.getElementById('f-joining').value;
-    if (!name||!mobile||!joining) { alert('Name, Mobile aur Joining Date zaroori hai'); return; }
+    if (!name || !mobile || !joining) { alert('Name, Mobile aur Joining Date zaroori hai'); return; }
+const aadhar = document.getElementById('f-aadhar').value.trim();
+if (!aadhar) { alert('Aadhar Number zaroori hai'); return; }
     setSyncing();
     await push(ref(db,'employees'), {
       id, name,
@@ -951,7 +952,7 @@
         </div>
         <div class="form-row">
           <div class="form-field"><label>Salary (₹)</label><input id="e-salary" type="number" value="${e.salary}"/></div>
-          <div class="form-field"><label>Aadhar Number</label><input id="e-aadhar" type="text" value="${e.aadhar||''}"/></div>
+          <div class="form-field"><label>Aadhar Number *</label><input id="e-aadhar" type="text" value="${e.aadhar||''}"/></div>
         </div>
         <div class="form-row">
           <div class="form-field"><label>Date of Birth</label><input id="e-dob" type="date" value="${e.dob||''}"/></div>
